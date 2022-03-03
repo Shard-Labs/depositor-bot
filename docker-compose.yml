@@ -1,9 +1,9 @@
 version: "3.7"
 services:
   lido-depositor-bot:
-    image: lidofinance/depositor-bot
+    image: lidofinance/delegator-bot
     build: .
-    container_name: lido-depositor-bot
+    container_name: lido-delegator-bot
     restart: unless-stopped
     ports:
       - 127.0.0.1:9000:8080
@@ -11,17 +11,14 @@ services:
       - NETWORK=${NETWORK}
       - WEB3_INFURA_PROJECT_ID=${WEB3_INFURA_PROJECT_ID}
       - WALLET_PRIVATE_KEY=${WALLET_PRIVATE_KEY}
-      - KAFKA_BROKER_ADDRESS_1=${KAFKA_BROKER_ADDRESS_1}
-      - KAFKA_USERNAME=${KAFKA_USERNAME}
-      - KAFKA_PASSWORD=${KAFKA_PASSWORD}
-      - KAFKA_TOPIC=${KAFKA_TOPIC}
+      - CREATE_TRANSACTIONS=true
     entrypoint: brownie
-    command: run depositor
+    command: run delegator
 
   lido-pause-bot:
-    image: lidofinance/depositor-bot
+    image: lidofinance/delegator-bot
     build: .
-    container_name: lido-pause-bot
+    container_name: lido-distributor-bot
     restart: unless-stopped
     ports:
       - 127.0.0.1:9001:8080
@@ -29,9 +26,7 @@ services:
       - NETWORK=${NETWORK}
       - WEB3_INFURA_PROJECT_ID=${WEB3_INFURA_PROJECT_ID}
       - WALLET_PRIVATE_KEY=${WALLET_PRIVATE_KEY}
-      - KAFKA_BROKER_ADDRESS_1=${KAFKA_BROKER_ADDRESS_1}
-      - KAFKA_USERNAME=${KAFKA_USERNAME}
-      - KAFKA_PASSWORD=${KAFKA_PASSWORD}
-      - KAFKA_TOPIC=${KAFKA_TOPIC}
+      - DISTRIBUTE_CYCLE=84600
+      - CREATE_TRANSACTIONS=true
     entrypoint: brownie
-    command: run pauser
+    command: run distributor
