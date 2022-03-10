@@ -25,7 +25,9 @@ from scripts.utils.metrics import (
     SUCCESS_DISTIBUTE_REWARDS,
     REQUIRED_BUFFERED_MATIC,
     REQUIRED_REWARDS_MATIC,
-    REWARDS_MATIC
+    REWARDS_MATIC,
+    TOTAL_DELEGATED,
+    DELEGATE_RATIO
 )
 from scripts.utils import variables
 from scripts.utils.gas_strategy import GasFeeStrategy
@@ -39,9 +41,8 @@ class DepositorBot:
     GAS_FEE_HIGHER_THAN_RECOMMENDED = 'Gas fee is higher than recommended fee.'
     StMATIC_CONTRACT_HAS_NOT_ENOUGH_BUFFERED_MATIC = 'StMATIC contract has not enough buffered MATIC.'
     StMATIC_CONTRACT_HAS_NOT_ENOUGH_REWARDS = 'StMATIC contract has not enough rewards to distribute.'
-    DELEGATED = False
-    DISTRIBUTED = False
-    RETRY_TIMES = 0
+    LAST_DELEGATE_TIME = 0
+    LAST_DISTRIBUTE_TIME = 0
 
     def __init__(self):
         logger.info({'msg': 'Initialize DepositorBot.'})
@@ -56,7 +57,6 @@ class DepositorBot:
             'Depositor bot',
             variables.NETWORK,
             variables.MAX_GAS_FEE,
-            variables.MAX_BUFFERED_MATICS,
             variables.CONTRACT_GAS_LIMIT,
             variables.GAS_FEE_PERCENTILE_1,
             variables.GAS_FEE_PERCENTILE_DAYS_HISTORY_1,
@@ -80,36 +80,27 @@ class DepositorBot:
         """Super-Mega infinity cycle!"""
         while True:
             try:
-                self.run_cycle()
-                if self.DELEGATED and self.DISTRIBUTED or self.RETRY_TIMES == variables.RETRY_GAS_FEE_TIMES:
-                    self.DELEGATED = False
-                    self.DISTRIBUTED = False
-                    self.RETRY_TIMES = 0
-                    logger.info(
-                        {'msg': f'Cycle finished. Sleep for {variables.CYCLE} seconds.'})
-                    time.sleep(variables.CYCLE)
-                else:
-                    logger.info(
-                        {'msg': f'Fees are high. Retry in {variables.RETRY_GAS_FEE} seconds. Tries: {self.RETRY_TIMES}/{variables.RETRY_GAS_FEE_TIMES}'})
-                    time.sleep(variables.RETRY_GAS_FEE)
-
+                for _ in chain.new_blocks():
+                    self.run_cycle()
+            except (BlockNotFound, ValueError) as error:
+                logger.warning(
+                    {'msg': 'Fetch block exception.', 'error': str(error)})
+                # Waiting for new block
+                time.sleep(13)
             except Exception as error:
                 logger.warning(
                     {'msg': 'Unexpected exception.', 'error': str(error)})
-                time.sleep(60)
+                time.sleep(13)
 
     def run_cycle(self):
-        if not self.DISTRIBUTED:
+        self.run_delegate_cycle()
+        logger.info({'msg': f'Delegate method end.'})
+
+        time.sleep(60)
+
+        if self.LAST_DISTRIBUTE_TIME + variables.CYCLE <= time.time():
             self.run_distribute_rewards_cycle()
             logger.info({'msg': f'Distribute rewards method end.'})
-
-        time.sleep(10)
-
-        if not self.DELEGATED:
-            self.run_delegate_cycle()
-            logger.info({'msg': f'Delegate method end.'})
-
-        self.RETRY_TIMES += 1
 
     def run_delegate_cycle(self):
         """
@@ -198,8 +189,7 @@ class DepositorBot:
             })
 
             logger.info({'msg': 'Transaction success.'})
-            self.DISTRIBUTED = True
-
+            self.LAST_DISTRIBUTE_TIME = time.time()
         except Exception as error:
             logger.error(
                 {'msg': f'Distribute Rewards failed.', 'error': str(error)})
@@ -232,8 +222,7 @@ class DepositorBot:
             })
 
             logger.info({'msg': 'Transaction success.'})
-            self.DELEGATED = True
-
+            self.LAST_DELEGATE_TIME = time.time()
         except Exception as error:
             logger.error({'msg': f'Delegate failed.', 'error': str(error)})
             DELEGATE_FAILURE.inc()
@@ -263,23 +252,36 @@ class DepositorBot:
 
         # Check buffered Matics
         total_buffered = StMATICInterface.totalBuffered()
+        reserved_funds = StMATICInterface.reservedFunds()
         delegation_lower_bound = StMATICInterface.delegationLowerBound()
-
-        logger.info({'msg': 'Call `totalBuffered()`.', 'value': {
-            'total_buffered': total_buffered,
-            'delegation_lower_bound': delegation_lower_bound,
-        }})
+        total_delegated = StMATICInterface.getTotalStakeAcrossAllValidators()
+        delegate_ratio = (total_buffered - reserved_funds) * 100 / total_delegated
 
         BUFFERED_MATIC.set(total_buffered)
         REQUIRED_BUFFERED_MATIC.set(delegation_lower_bound)
+        TOTAL_DELEGATED.set(total_delegated)
+        DELEGATE_RATIO.set(delegate_ratio)
 
-        if total_buffered < delegation_lower_bound:
+        logger.info({'msg': 'Call `totalBuffered()`.', 'value': {
+            'total_buffered': total_buffered,
+            'reserved_funds': reserved_funds,
+            'delegation_lower_bound': delegation_lower_bound,
+            'total_delegated': total_delegated,
+            'delegate_ratio': delegate_ratio,
+        }})
+
+        is_high_buffer = False
+        if delegate_ratio > variables.MAX_RATIO:
+            is_high_buffer = True
+        elif delegate_ratio >= variables.MIN_RATIO \
+                and delegate_ratio <= variables.MAX_RATIO \
+                and self.LAST_DELEGATE_TIME + variables.CYCLE <= time.time():
+            is_high_buffer = True
+        else:
             logger.warning(
                 {'msg': self.StMATIC_CONTRACT_HAS_NOT_ENOUGH_BUFFERED_MATIC, 'value': total_buffered})
             delegate_issues.append(
                 self.StMATIC_CONTRACT_HAS_NOT_ENOUGH_BUFFERED_MATIC)
-
-        is_high_buffer = total_buffered >= variables.MAX_BUFFERED_MATICS
 
         # Gas price check
         recommended_gas_fee = self.gas_fee_strategy.get_recommended_gas_fee((
@@ -306,7 +308,6 @@ class DepositorBot:
                     'max_fee': variables.MAX_GAS_FEE,
                     'current_fee': current_gas_fee,
                     'recommended_fee': recommended_gas_fee,
-                    'total_buffered': total_buffered,
                 }
             })
             delegate_issues.append(self.GAS_FEE_HIGHER_THAN_RECOMMENDED)
