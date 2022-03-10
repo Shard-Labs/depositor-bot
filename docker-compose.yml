@@ -12,6 +12,8 @@ services:
       - WEB3_INFURA_PROJECT_ID=${WEB3_INFURA_PROJECT_ID}
       - WALLET_PRIVATE_KEY=${WALLET_PRIVATE_KEY}
       - CYCLE=${CYCLE}
+      - MAX_RATIO=${MAX_RATIO}
+      - MIN_RATIO=${MIN_RATIO}
       - CREATE_TRANSACTIONS=true
     entrypoint: brownie
     command: run depositor
