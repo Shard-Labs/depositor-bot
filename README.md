@@ -1,7 +1,16 @@
 # <img src="https://docs.lido.fi/img/logo.svg" alt="Lido" width="46"/> Lido For Polygon Depositor bot
 
 ## Delegator and Reward Distributor bot
-Small bots that will 
+The bot is used to delegate and distribute rewards
+
+### Reward Distribution
+The Bot will distribute rewards each cycle (default 24h), we do some checks before executing the transaction:
+Check if the gas fees are cheap.
+Check if there are some accumulated rewards.
+When the transaction is submitted successfully the process will sleep for a cycle otherwise the Bot will keep trying to submit a transaction each 13 sec (block time).
+
+### Delegation
+The Bot will delegate the buffered tokens accumulated in the stMatic contract. Each block time we do a check to see if there are enough buffered tokens to delegate. If the actual buffered tokens are 3%(MAX_RATE) of the total staked tokens in the protocol we delegate automatically without checking gas fees. If the buffered tokens are between 1%(MIN_RATE) and 3%(MAX_RATE) of the total staked tokens, the delegation is executed each cycle (default 24h). If the total Buffered is less than 1%(MIN_RATE) we don’t delegate.
 
 ## How to install
 
@@ -58,5 +67,5 @@ docker-compose up
 | MIN_PRIORITY_FEE                  |   2 GWEI   |   `2 gwei`    | Min priority fee that will be used in tx                                                              |
 | MAX_PRIORITY_FEE                  |  10 GWEI   |   `10 gwei`   | Max priority fee that will be used in tx (4 gwei recommended)                                         |
 | CYCLE                             |   86400    |    `86400`    | The time interval between each delegation and reward distribution                                     |
-| MAX_RATIO                         |     3      |     `3`       | The ratio (totalBuffered * 100 / totalStaked), if the ratio > MAX_RATIO delegate automatically        |
-| MIN_RATIO                         |     1      |     `1`       | The min ratio to delegate the buffered tokens                                                         |
+| MAX_RATE                          |     3      |     `3`       | The ratio (totalBuffered * 100 / totalStaked), if the ratio > MAX_RATIO delegate automatically        |
+| MIN_RATE                          |     1      |     `1`       | The min ratio to delegate the buffered tokens                                                         |
