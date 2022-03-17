@@ -33,6 +33,8 @@ CYCLE = int(os.getenv('CYCLE', 86400))
 MIN_RATIO = int(os.getenv('MIN_RATIO', 1))
 MAX_RATIO = int(os.getenv('MAX_RATIO', 3))
 
+PRIORITY_FEE = Wei(os.getenv('PRIORITY_FEE', '0 gwei'))
+
 # Account private key
 WALLET_PRIVATE_KEY = os.getenv('WALLET_PRIVATE_KEY', None)
 

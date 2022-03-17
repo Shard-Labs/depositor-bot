@@ -76,7 +76,12 @@ def setup_web3_fixtures_delegate_in_range():
     web3.provider = MockProvider(DELEGATE_FIXTURES_IN_RANGE)
 
 @pytest.fixture(scope='function')
-def setup_web3_fixtures_delegate_out_range():
+def setup_web3_fixtures_delegate_out_range(monkeypatch):
+    from scripts.utils import variables
+    monkeypatch.setenv('MIN_RATIO', '10')
+    monkeypatch.setenv('MAX_RATIO', '50')
+    monkeypatch.setattr(variables, 'MIN_RATIO', 10)
+    monkeypatch.setattr(variables, 'MAX_RATIO', 50)
     web3.disconnect()
     web3.provider = MockProvider(DELEGATE_FIXTURES_OUT_RANGE)
 

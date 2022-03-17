@@ -97,7 +97,7 @@ DEPOSITOR_BASE_FIXTURES_SMALL_BALANCE = {
 DEPOSITOR_FIXTURES_WITH_HIGH_GAS = {
     **DELEGATE_BASE_FIXTURES,
     'eth_getBalance': (
-        (['0x3E46BEFDA7112d8954b923ea6bd9f07c2e615e10', 'latest'], {'jsonrpc': '2.0', 'id': 0, 'result': '0xffffffffffffffff'}),
+        (['0x3f17f1962B36e491b30A40b2405849e597Ba5FB5', 'latest'], {'jsonrpc': '2.0', 'id': 0, 'result': '0xffffffffffffffff'}),
     ),
     'eth_getBlockByNumber': (
         (('latest', False), {'jsonrpc': '2.0', 'id': 15,

@@ -173,14 +173,22 @@ class DepositorBot:
             logger.info({'msg': 'Account was not provided.'})
             return
 
+        priority = variables.PRIORITY_FEE
+        if (priority == 0):
+            priority = self._get_deposit_priority_fee(
+                variables.GAS_PRIORITY_FEE_PERCENTILE)
+
+        logger.info({'msg': 'Tx info.', 'value': {
+            'priority_fee': priority,
+            'gas_limit': variables.CONTRACT_GAS_LIMIT
+        }})
+
         if not variables.CREATE_TRANSACTIONS:
             logger.info({'msg': 'Run in dry mode.'})
             return
 
         logger.info({'msg': 'Creating tx in blockchain.'})
 
-        priority = self._get_deposit_priority_fee(
-            variables.GAS_PRIORITY_FEE_PERCENTILE)
         try:
             # Distribute Rewards
             StMATICInterface.distributeRewards({
@@ -205,14 +213,21 @@ class DepositorBot:
             logger.info({'msg': 'Account was not provided.'})
             return
 
+        priority = variables.PRIORITY_FEE
+        if (priority == 0):
+            priority = self._get_deposit_priority_fee(
+                variables.GAS_PRIORITY_FEE_PERCENTILE)
+
+        logger.info({'msg': 'Tx info.', 'value': {
+            'priority_fee': priority,
+            'gas_limit': variables.CONTRACT_GAS_LIMIT
+        }})
+
         if not variables.CREATE_TRANSACTIONS:
             logger.info({'msg': 'Run in dry mode.'})
             return
 
         logger.info({'msg': 'Creating tx in blockchain.'})
-
-        priority = self._get_deposit_priority_fee(
-            variables.GAS_PRIORITY_FEE_PERCENTILE)
 
         try:
             # Delegate
