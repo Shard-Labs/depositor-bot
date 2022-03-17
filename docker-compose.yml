@@ -14,6 +14,8 @@ services:
       - CYCLE=${CYCLE}
       - MAX_RATIO=${MAX_RATIO}
       - MIN_RATIO=${MIN_RATIO}
+      - PRIORITY_FEE=${PRIORITY_FEE}
+      - CONTRACT_GAS_LIMIT=${CONTRACT_GAS_LIMIT}
       - CREATE_TRANSACTIONS=true
     entrypoint: brownie
     command: run depositor
