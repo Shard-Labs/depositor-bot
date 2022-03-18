@@ -350,7 +350,7 @@ class DepositorBot:
             ACCOUNT_BALANCE.set(0)
             logger.info({'msg': 'Check account balance. No account provided.'})
 
-        current_gas_fee = web3.eth.get_block('pending').baseFeePerGas
+        # current_gas_fee = web3.eth.get_block('pending').baseFeePerGas
 
         # calculate rewards
         total_rewards, reward_distribution_lower_bound = self._calculate_rewards()
@@ -370,35 +370,35 @@ class DepositorBot:
             distribute_rewards_issues.append(
                 self.StMATIC_CONTRACT_HAS_NOT_ENOUGH_REWARDS)
 
-        # Gas price check
-        recommended_gas_fee = self.gas_fee_strategy.get_recommended_gas_fee((
-            (variables.GAS_FEE_PERCENTILE_DAYS_HISTORY_1,
-             variables.GAS_FEE_PERCENTILE_1),
-            (variables.GAS_FEE_PERCENTILE_DAYS_HISTORY_2,
-             variables.GAS_FEE_PERCENTILE_2),
-        ), force=False)
+        # # Gas price check
+        # recommended_gas_fee = self.gas_fee_strategy.get_recommended_gas_fee((
+        #     (variables.GAS_FEE_PERCENTILE_DAYS_HISTORY_1,
+        #      variables.GAS_FEE_PERCENTILE_1),
+        #     (variables.GAS_FEE_PERCENTILE_DAYS_HISTORY_2,
+        #      variables.GAS_FEE_PERCENTILE_2),
+        # ), force=False)
 
-        GAS_FEE.labels('max_fee').set(variables.MAX_GAS_FEE)
-        GAS_FEE.labels('current_fee').set(current_gas_fee)
-        GAS_FEE.labels('recommended_fee').set(recommended_gas_fee)
+        # GAS_FEE.labels('max_fee').set(variables.MAX_GAS_FEE)
+        # GAS_FEE.labels('current_fee').set(current_gas_fee)
+        # GAS_FEE.labels('recommended_fee').set(recommended_gas_fee)
 
-        logger.info({'msg': 'Fetch gas fees.', 'values': {
-            'max_fee': variables.MAX_GAS_FEE,
-            'current_fee': current_gas_fee,
-            'recommended_fee': recommended_gas_fee,
-        }})
+        # logger.info({'msg': 'Fetch gas fees.', 'values': {
+        #     'max_fee': variables.MAX_GAS_FEE,
+        #     'current_fee': current_gas_fee,
+        #     'recommended_fee': recommended_gas_fee,
+        # }})
 
-        if current_gas_fee > recommended_gas_fee:
-            logger.warning({
-                'msg': self.GAS_FEE_HIGHER_THAN_RECOMMENDED,
-                'values': {
-                    'max_fee': variables.MAX_GAS_FEE,
-                    'current_fee': current_gas_fee,
-                    'recommended_fee': recommended_gas_fee
-                }
-            })
-            distribute_rewards_issues.append(
-                self.GAS_FEE_HIGHER_THAN_RECOMMENDED)
+        # if current_gas_fee > recommended_gas_fee:
+        #     logger.warning({
+        #         'msg': self.GAS_FEE_HIGHER_THAN_RECOMMENDED,
+        #         'values': {
+        #             'max_fee': variables.MAX_GAS_FEE,
+        #             'current_fee': current_gas_fee,
+        #             'recommended_fee': recommended_gas_fee
+        #         }
+        #     })
+        #     distribute_rewards_issues.append(
+        #         self.GAS_FEE_HIGHER_THAN_RECOMMENDED)
 
         return distribute_rewards_issues
 
