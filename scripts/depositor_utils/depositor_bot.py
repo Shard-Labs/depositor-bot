@@ -86,11 +86,11 @@ class DepositorBot:
                 logger.warning(
                     {'msg': 'Fetch block exception.', 'error': str(error)})
                 # Waiting for new block
-                time.sleep(13)
+                time.sleep(26)
             except Exception as error:
                 logger.warning(
                     {'msg': 'Unexpected exception.', 'error': str(error)})
-                time.sleep(13)
+                time.sleep(26)
 
     def run_cycle(self):
         self.run_delegate_cycle()
@@ -383,12 +383,12 @@ class DepositorBot:
         GAS_FEE.labels('recommended_fee').set(recommended_gas_fee)
 
         logger.info({'msg': 'Fetch gas fees.', 'values': {
-            'max_fee': variables.MAX_GAS_FEE,
+            'max_fee': variables.DISTRIBUTE_REWARDS_MAX_GAS_FEE,
             'current_fee': current_gas_fee,
             'recommended_fee': recommended_gas_fee,
         }})
 
-        if current_gas_fee > recommended_gas_fee:
+        if current_gas_fee > variables.DISTRIBUTE_REWARDS_MAX_GAS_FEE:
             logger.warning({
                 'msg': self.GAS_FEE_HIGHER_THAN_RECOMMENDED,
                 'values': {

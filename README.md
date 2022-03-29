@@ -56,6 +56,7 @@ docker-compose up
 | NETWORK (required)                |     -      |    `None`     | Network (e.g. mainnet, goerli)                                                                        |
 | WEB3_INFURA_PROJECT_ID (required) |     -      |    `None`     | Project ID in infura                                                                                  |
 | MAX_GAS_FEE                       |  100 GWEI  |  `100 gwei`   | Bot will wait for a lower price. Treshold for gas_fee                                                 |
+| DISTRIBUTE_REWARDS_MAX_GAS_FEE    |  300 GWEI  |  `300 gwei`   | Bot will distribute rewards if the for gas_fee is less than this value                                |
 | GAS_FEE_PERCENTILE_1              |     20     |     `20`      | Percentile for first recommended fee calculation                                                      |
 | GAS_FEE_PERCENTILE_DAYS_HISTORY_1 |     1      |      `1`      | Percentile for first recommended calculates from N days of the fee history                            |
 | GAS_FEE_PERCENTILE_2              |     20     |     `20`      | Percentile for second recommended fee calculation                                                     |
@@ -66,6 +67,7 @@ docker-compose up
 | CREATE_TRANSACTIONS               |     -      |    `None`     | If `true` then tx will be send to blockchain                                                          |
 | MIN_PRIORITY_FEE                  |   2 GWEI   |   `2 gwei`    | Min priority fee that will be used in tx                                                              |
 | MAX_PRIORITY_FEE                  |  10 GWEI   |   `10 gwei`   | Max priority fee that will be used in tx (4 gwei recommended)                                         |
+| PRIORITY_FEE                      |   1 GWEI   |   ` 1 gwei`   | Priority fee that will be used in tx                                                                  |
 | CYCLE                             |   86400    |    `86400`    | The time interval between each delegation and reward distribution                                     |
 | MAX_RATE                          |     3      |     `3`       | The ratio (totalBuffered * 100 / totalStaked), if the ratio > MAX_RATIO delegate automatically        |
 | MIN_RATE                          |     1      |     `1`       | The min ratio to delegate the buffered tokens                                                         |
