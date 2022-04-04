@@ -8,9 +8,11 @@ logger = logging.getLogger(__name__)
 
 
 NETWORK = os.getenv('NETWORK')
+VERSION = '1.0.0'
 
 # Transaction limits
 MAX_GAS_FEE = Wei(os.getenv('MAX_GAS_FEE', '100 gwei'))
+DISTRIBUTE_REWARDS_MAX_GAS_FEE = Wei(os.getenv('DISTRIBUTE_REWARDS_MAX_GAS_FEE', '300 gwei'))
 CONTRACT_GAS_LIMIT = Wei(os.getenv('CONTRACT_GAS_LIMIT', 10 * 10**6))
 
 # Gas fee percentile
