@@ -278,6 +278,7 @@ class DepositorBot:
         DELEGATE_RATIO.set(delegate_ratio)
 
         logger.info({'msg': 'Call `totalBuffered()`.', 'value': {
+            'version': variables.VERSION,
             'total_buffered': total_buffered,
             'reserved_funds': reserved_funds,
             'delegation_lower_bound': delegation_lower_bound,
@@ -311,6 +312,7 @@ class DepositorBot:
         GAS_FEE.labels('recommended_fee').set(recommended_gas_fee)
 
         logger.info({'msg': 'Fetch gas fees.', 'values': {
+            'version': variables.VERSION,
             'max_fee': variables.MAX_GAS_FEE,
             'current_fee': current_gas_fee,
             'recommended_fee': recommended_gas_fee,
@@ -320,6 +322,7 @@ class DepositorBot:
             logger.warning({
                 'msg': self.GAS_FEE_HIGHER_THAN_RECOMMENDED,
                 'values': {
+                    'version': variables.VERSION,
                     'max_fee': variables.MAX_GAS_FEE,
                     'current_fee': current_gas_fee,
                     'recommended_fee': recommended_gas_fee,
@@ -363,6 +366,7 @@ class DepositorBot:
                 'msg': self.StMATIC_CONTRACT_HAS_NOT_ENOUGH_REWARDS,
 
                 'values': {
+                    'version': variables.VERSION,
                     'total_rewards': total_rewards,
                     'reward_distribution_lower_bound': reward_distribution_lower_bound,
                 }
@@ -383,6 +387,7 @@ class DepositorBot:
         GAS_FEE.labels('recommended_fee').set(recommended_gas_fee)
 
         logger.info({'msg': 'Fetch gas fees.', 'values': {
+            'version': variables.VERSION,
             'max_fee': variables.DISTRIBUTE_REWARDS_MAX_GAS_FEE,
             'current_fee': current_gas_fee,
             'recommended_fee': recommended_gas_fee,
@@ -392,7 +397,8 @@ class DepositorBot:
             logger.warning({
                 'msg': self.GAS_FEE_HIGHER_THAN_RECOMMENDED,
                 'values': {
-                    'max_fee': variables.MAX_GAS_FEE,
+                    'version': variables.VERSION,
+                    'max_fee': variables.DISTRIBUTE_REWARDS_MAX_GAS_FEE,
                     'current_fee': current_gas_fee,
                     'recommended_fee': recommended_gas_fee
                 }
