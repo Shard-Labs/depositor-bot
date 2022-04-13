@@ -8,8 +8,8 @@ git fetch
 git checkout $CIRCLE_BRANCH
 git pull
 
-echo "INFURA_API_KEY=$INFURA_API_KEY" > .env
-echo "INFURA_API_KEY=$INFURA_API_KEY"
+echo "INFURA_API_KEY=${INFURA_API_KEY}" > .env
+echo "INFURA_API_KEY=${INFURA_API_KEY}"
 
 EOB
 
