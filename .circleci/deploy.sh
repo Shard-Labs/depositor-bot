@@ -8,8 +8,8 @@ git fetch
 git checkout $CIRCLE_BRANCH
 git pull
 
-echo "$WEB3_INFURA_PROJECT_ID" | base64 --decode > .env
-echo "$MAX_GAS_FEE" | base64 --decode >> .env
+echo "$MAX_GAS_FEE" > .env
+echo "$MAX_GAS_FEE"
 
 EOB
 
