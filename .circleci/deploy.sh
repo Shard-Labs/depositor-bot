@@ -9,6 +9,7 @@ git checkout $CIRCLE_BRANCH
 git pull
 
 echo "$MAX_GAS_FEE" > .env
+echo "testing" >> .env
 echo "$MAX_GAS_FEE"
 cat .env
 
