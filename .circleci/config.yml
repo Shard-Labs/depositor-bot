@@ -1,0 +1,19 @@
+version: 2
+
+jobs:
+  deploy:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Deploy latest through nested SSH
+          command: bash .circleci/deploy.sh
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - deploy:
+          filters:
+            branches:
+              only: deployment
