@@ -23,6 +23,9 @@ echo "CYCLE=$CYCLE" >> .env
 echo "MIN_RATIO=$MIN_RATIO" >> .env
 echo "MAX_RATIO=$MAX_RATIO" >> .env
 
+docker-compose build
+docker-compose up -d
+
 EOB
 
 EOA
