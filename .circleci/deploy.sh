@@ -23,9 +23,9 @@ echo "CYCLE=$CYCLE" >> .env
 echo "MIN_RATIO=$MIN_RATIO" >> .env
 echo "MAX_RATIO=$MAX_RATIO" >> .env
 echo "DISTRIBUTE_REWARDS_MAX_GAS_FEE=$DISTRIBUTE_REWARDS_MAX_GAS_FEE" >> .env
+echo "PRIORITY_FEE=$PRIORITY_FEE" >> .env
 
-docker-compose build
-docker-compose up -d
+docker-compose up -d --build
 
 EOB
 
