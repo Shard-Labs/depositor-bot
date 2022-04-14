@@ -16,4 +16,4 @@ workflows:
       - deploy:
           filters:
             branches:
-              only: deployment
+              only: main
