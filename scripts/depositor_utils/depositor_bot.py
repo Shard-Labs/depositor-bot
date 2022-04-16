@@ -110,8 +110,6 @@ class DepositorBot:
         self._update_state()
 
         delegate_issues = self.get_delegate_issues()
-        if self.GAS_FEE_HIGHER_THAN_RECOMMENDED not in delegate_issues:
-            self.DELEGATED = True
 
         if not delegate_issues:
             logger.info({'msg': 'Start delegate.'})
@@ -143,8 +141,6 @@ class DepositorBot:
         self._update_state()
 
         distribute_rewards_issues = self.get_distribute_rewards_issues()
-        if self.GAS_FEE_HIGHER_THAN_RECOMMENDED not in distribute_rewards_issues:
-            self.DISTRIBUTED = True
 
         if not distribute_rewards_issues:
             logger.info({'msg': 'Distribute Rewards.'})
@@ -156,7 +152,7 @@ class DepositorBot:
         long_issues = [
             self.NOT_ENOUGH_BALANCE_ON_ACCOUNT,
             self.GAS_FEE_HIGHER_THAN_RECOMMENDED,
-            self.StMATIC_CONTRACT_HAS_NOT_ENOUGH_BUFFERED_MATIC
+            self.StMATIC_CONTRACT_HAS_NOT_ENOUGH_REWARDS
         ]
 
         for long_issue in long_issues:
@@ -284,13 +280,14 @@ class DepositorBot:
             'delegation_lower_bound': delegation_lower_bound,
             'total_delegated': total_delegated,
             'delegate_ratio': delegate_ratio,
+            'last_delegation_time': self.LAST_DELEGATE_TIME,
         }})
 
         is_high_buffer = False
-        if delegate_ratio > variables.MAX_RATIO:
+
+        if delegate_ratio >= variables.MAX_RATIO:
             is_high_buffer = True
         elif delegate_ratio >= variables.MIN_RATIO \
-                and delegate_ratio <= variables.MAX_RATIO \
                 and self.LAST_DELEGATE_TIME + variables.CYCLE <= time.time():
             is_high_buffer = True
         else:
@@ -316,6 +313,8 @@ class DepositorBot:
             'max_fee': variables.MAX_GAS_FEE,
             'current_fee': current_gas_fee,
             'recommended_fee': recommended_gas_fee,
+            'gas_fee_percentile_1': variables.GAS_FEE_PERCENTILE_1,
+            'gas_fee_percentile_2': variables.GAS_FEE_PERCENTILE_2,
         }})
 
         if current_gas_fee > recommended_gas_fee:
@@ -391,6 +390,7 @@ class DepositorBot:
             'max_fee': variables.DISTRIBUTE_REWARDS_MAX_GAS_FEE,
             'current_fee': current_gas_fee,
             'recommended_fee': recommended_gas_fee,
+            'next_distribute_rewards_time': self.LAST_DISTRIBUTE_TIME + variables.CYCLE,
         }})
 
         if current_gas_fee > variables.DISTRIBUTE_REWARDS_MAX_GAS_FEE:
