@@ -93,14 +93,14 @@ class DepositorBot:
                 time.sleep(26)
 
     def run_cycle(self):
-        self.run_delegate_cycle()
-        logger.info({'msg': f'Delegate method end.'})
-
-        time.sleep(60)
-
         if self.LAST_DISTRIBUTE_TIME + variables.CYCLE <= time.time():
             self.run_distribute_rewards_cycle()
             logger.info({'msg': f'Distribute rewards method end.'})
+
+        time.sleep(60)
+
+        self.run_delegate_cycle()
+        logger.info({'msg': f'Delegate method end.'})
 
     def run_delegate_cycle(self):
         """
