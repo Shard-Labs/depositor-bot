@@ -57,6 +57,7 @@ docker-compose up
 | WEB3_INFURA_PROJECT_ID (required) |     -      |    `None`     | Project ID in infura                                                                                  |
 | MAX_GAS_FEE                       |  100 GWEI  |  `100 gwei`   | Bot will wait for a lower price. Treshold for gas_fee                                                 |
 | DISTRIBUTE_REWARDS_MAX_GAS_FEE    |  300 GWEI  |  `300 gwei`   | Bot will distribute rewards if the for gas_fee is less than this value                                |
+| DISTRIBUTE_REWARDS                |    true    |    `true`     | If true Distribute rewards else ignore                                                                |
 | GAS_FEE_PERCENTILE_1              |     20     |     `20`      | Percentile for first recommended fee calculation                                                      |
 | GAS_FEE_PERCENTILE_DAYS_HISTORY_1 |     1      |      `1`      | Percentile for first recommended calculates from N days of the fee history                            |
 | GAS_FEE_PERCENTILE_2              |     20     |     `20`      | Percentile for second recommended fee calculation                                                     |
