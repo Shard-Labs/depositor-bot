@@ -52,6 +52,17 @@ def test_delegate_max_priority(
     assert find_log_message(caplog, 'Run in dry mode.')
     assert not find_log_message(caplog, 'Creating tx in blockchain.')
 
+def test_disable_rewards_distibution(
+    caplog,
+    setup_web3_disable_rewards_distibution,
+    depositor_bot,
+    setup_account,
+    setup_no_create_txs
+):
+    caplog.set_level(logging.INFO)
+    depositor_bot.run_distribute_rewards_cycle()
+    assert find_log_message(caplog, 'Distribute rewards method disabled.')
+
 def test_delegate_range_no_create_tx(
     caplog,
     setup_web3_fixtures_delegate_in_range,

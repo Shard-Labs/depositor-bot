@@ -60,7 +60,10 @@ def setup_no_create_txs(monkeypatch):
     monkeypatch.setattr(variables, 'CREATE_TRANSACTIONS', False)
 
 @pytest.fixture(scope='function')
-def setup_web3_fixtures_distribute_rewards():
+def setup_web3_fixtures_distribute_rewards(monkeypatch):
+    from scripts.utils import variables
+    monkeypatch.setenv('DISTRIBUTE_REWARDS', 'true')
+    monkeypatch.setattr(variables, 'DISTRIBUTE_REWARDS', True)
     web3.disconnect()
     web3.provider = MockProvider(DISTRIBUTE_BASE_REWARDS_FIXTURES)
 
@@ -82,6 +85,14 @@ def setup_web3_fixtures_delegate_out_range(monkeypatch):
     monkeypatch.setenv('MAX_RATIO', '50')
     monkeypatch.setattr(variables, 'MIN_RATIO', 10)
     monkeypatch.setattr(variables, 'MAX_RATIO', 50)
+    web3.disconnect()
+    web3.provider = MockProvider(DELEGATE_FIXTURES_OUT_RANGE)
+
+@pytest.fixture(scope='function')
+def setup_web3_disable_rewards_distibution(monkeypatch):
+    from scripts.utils import variables
+    monkeypatch.setenv('DISTRIBUTE_REWARDS', 'false')
+    monkeypatch.setattr(variables, 'DISTRIBUTE_REWARDS', False)
     web3.disconnect()
     web3.provider = MockProvider(DELEGATE_FIXTURES_OUT_RANGE)
 
@@ -110,7 +121,10 @@ def setup_web3_deposit_fixtures_not_enough_buffered_matic():
 
 
 @pytest.fixture()
-def setup_web3_deposit_fixtures_not_enough_rewards():
+def setup_web3_deposit_fixtures_not_enough_rewards(monkeypatch):
+    from scripts.utils import variables
+    monkeypatch.setenv('DISTRIBUTE_REWARDS', 'true')
+    monkeypatch.setattr(variables, 'DISTRIBUTE_REWARDS', True)
     web3.disconnect()
     web3.provider = MockProvider(DELEGATOR_FIXTURES_NOT_ENOUGH_REWARDS)
 

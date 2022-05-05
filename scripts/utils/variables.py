@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 NETWORK = os.getenv('NETWORK')
-VERSION = '1.1.1'
+VERSION = '1.1.2'
 
 # Transaction limits
 MAX_GAS_FEE = Wei(os.getenv('MAX_GAS_FEE', '100 gwei'))
@@ -31,6 +31,8 @@ MAX_PRIORITY_FEE = Wei(os.getenv('MAX_PRIORITY_FEE', '10 gwei'))
 
 WEB3_CHAIN_ID = web3.eth.chain_id
 CREATE_TRANSACTIONS = os.getenv('CREATE_TRANSACTIONS') == 'true'
+DISTRIBUTE_REWARDS = os.getenv('DISTRIBUTE_REWARDS') == 'true'
+
 CYCLE = int(os.getenv('CYCLE', 86400))
 MIN_RATIO = int(os.getenv('MIN_RATIO', 1))
 MAX_RATIO = int(os.getenv('MAX_RATIO', 3))

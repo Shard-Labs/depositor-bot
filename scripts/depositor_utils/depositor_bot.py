@@ -93,9 +93,12 @@ class DepositorBot:
                 time.sleep(26)
 
     def run_cycle(self):
+        logger.info(
+            {'msg': f'Distribute rewards {self.LAST_DISTRIBUTE_TIME + variables.CYCLE} <= {time.time()}'})
+        
         if self.LAST_DISTRIBUTE_TIME + variables.CYCLE <= time.time():
             self.run_distribute_rewards_cycle()
-            logger.info({'msg': f'Distribute rewards method end.'})
+            logger.info({'msg': f'Distribute rewards method end.'})           
 
         time.sleep(60)
 
@@ -137,6 +140,10 @@ class DepositorBot:
         """
         Fetch latest signs from
         """
+        if not variables.DISTRIBUTE_REWARDS:
+            logger.info({'msg': f'Distribute rewards method disabled.'})
+            return
+
         logger.info({'msg': 'New distribute rewards cycle.'})
         self._update_state()
 
