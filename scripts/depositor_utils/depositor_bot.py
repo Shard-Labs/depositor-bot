@@ -94,13 +94,17 @@ class DepositorBot:
 
     def run_cycle(self):
         logger.info(
-            {'msg': f'Distribute rewards {self.LAST_DISTRIBUTE_TIME + variables.CYCLE} <= {time.time()}'})
-        
+            {'msg': f'Infos', 'value': {
+                'Last delegation at': self.LAST_DISTRIBUTE_TIME + variables.CYCLE,
+                'Next reward distribution at': self.LAST_DISTRIBUTE_TIME + variables.CYCLE,
+                'Current Time': time.time()
+            }})
+
         if self.LAST_DISTRIBUTE_TIME + variables.CYCLE <= time.time():
             self.run_distribute_rewards_cycle()
-            logger.info({'msg': f'Distribute rewards method end.'})           
+            logger.info({'msg': f'Distribute rewards method end.'})
 
-        time.sleep(60)
+        time.sleep(5)
 
         self.run_delegate_cycle()
         logger.info({'msg': f'Delegate method end.'})
@@ -266,30 +270,8 @@ class DepositorBot:
             ACCOUNT_BALANCE.set(0)
             logger.info({'msg': 'Check account balance. No account provided.'})
 
-        current_gas_fee = web3.eth.get_block('pending').baseFeePerGas
-
         # Check buffered Matics
-        total_buffered = StMATICInterface.totalBuffered()
-        reserved_funds = StMATICInterface.reservedFunds()
-        delegation_lower_bound = StMATICInterface.delegationLowerBound()
-        total_delegated = StMATICInterface.getTotalStakeAcrossAllValidators()
-        delegate_ratio = (total_buffered - reserved_funds) * 100 / total_delegated
-
-        BUFFERED_MATIC.set(total_buffered)
-        REQUIRED_BUFFERED_MATIC.set(delegation_lower_bound)
-        TOTAL_DELEGATED.set(total_delegated)
-        DELEGATE_RATIO.set(delegate_ratio)
-
-        logger.info({'msg': 'Call `totalBuffered()`.', 'value': {
-            'version': variables.VERSION,
-            'total_buffered': total_buffered,
-            'reserved_funds': reserved_funds,
-            'delegation_lower_bound': delegation_lower_bound,
-            'total_delegated': total_delegated,
-            'delegate_ratio': delegate_ratio,
-            'last_delegation_time': self.LAST_DELEGATE_TIME,
-        }})
-
+        delegate_ratio = self._get_deposit_ratio()
         is_high_buffer = False
 
         if delegate_ratio >= variables.MAX_RATIO:
@@ -299,11 +281,12 @@ class DepositorBot:
             is_high_buffer = True
         else:
             logger.warning(
-                {'msg': self.StMATIC_CONTRACT_HAS_NOT_ENOUGH_BUFFERED_MATIC, 'value': total_buffered})
+                {'msg': self.StMATIC_CONTRACT_HAS_NOT_ENOUGH_BUFFERED_MATIC})
             delegate_issues.append(
                 self.StMATIC_CONTRACT_HAS_NOT_ENOUGH_BUFFERED_MATIC)
 
         # Gas price check
+        current_gas_fee = web3.eth.get_block('pending').baseFeePerGas
         recommended_gas_fee = self.gas_fee_strategy.get_recommended_gas_fee((
             (variables.GAS_FEE_PERCENTILE_DAYS_HISTORY_1,
              variables.GAS_FEE_PERCENTILE_1),
@@ -396,46 +379,42 @@ class DepositorBot:
             'version': variables.VERSION,
             'max_fee': variables.DISTRIBUTE_REWARDS_MAX_GAS_FEE,
             'current_fee': current_gas_fee,
-            'recommended_fee': recommended_gas_fee,
-            'next_distribute_rewards_time': self.LAST_DISTRIBUTE_TIME + variables.CYCLE,
+            'recommended_fee': recommended_gas_fee
         }})
 
         if current_gas_fee > variables.DISTRIBUTE_REWARDS_MAX_GAS_FEE:
-            logger.warning({
-                'msg': self.GAS_FEE_HIGHER_THAN_RECOMMENDED,
-                'values': {
-                    'version': variables.VERSION,
-                    'max_fee': variables.DISTRIBUTE_REWARDS_MAX_GAS_FEE,
-                    'current_fee': current_gas_fee,
-                    'recommended_fee': recommended_gas_fee
-                }
-            })
             distribute_rewards_issues.append(
                 self.GAS_FEE_HIGHER_THAN_RECOMMENDED)
 
         return distribute_rewards_issues
 
     def _calculate_rewards(self):
-        res = NodeOperatorRegistryInterface.getOperatorInfos(True, False)
-        accumulatedRewards = 0
-        for r in res:
-            validator_share = get_interface(r[1])
-            reward = validator_share.getLiquidRewards(StMATICInterface.address)
-            if reward >= validator_share.minAmount():
-                accumulatedRewards += reward
+        try:
+            res = NodeOperatorRegistryInterface.getOperatorInfos(True, False)
+            accumulatedRewards = 0
+            for r in res:
+                validator_share = get_interface(r[1])
+                reward = validator_share.getLiquidRewards(
+                    StMATICInterface.address)
+                if reward >= validator_share.minAmount():
+                    accumulatedRewards += reward
 
-        reward_distribution_lower_bound = StMATICInterface.rewardDistributionLowerBound()
-        total_buffered = StMATICInterface.totalBuffered()
-        balance_of = ERC20Interface.balanceOf(StMATICInterface.address)
-        total_rewards = (balance_of - total_buffered) + accumulatedRewards
+            reward_distribution_lower_bound = StMATICInterface.rewardDistributionLowerBound()
+            total_buffered = StMATICInterface.totalBuffered()
+            balance_of = ERC20Interface.balanceOf(StMATICInterface.address)
+            total_rewards = (balance_of - total_buffered) + accumulatedRewards
 
-        logger.info({'msg': 'Rewards.', 'value': {
-            'reward_distribution_lower_bound': reward_distribution_lower_bound,
-            'total_buffered': total_buffered,
-            'balance_of': balance_of,
-            'total_rewards': total_rewards
-        }})
-        return total_rewards, reward_distribution_lower_bound
+            logger.info({'msg': 'Rewards.', 'value': {
+                'reward_distribution_lower_bound': reward_distribution_lower_bound,
+                'total_buffered': total_buffered,
+                'balance_of': balance_of,
+                'total_rewards': total_rewards
+            }})
+            return total_rewards, reward_distribution_lower_bound
+        except Exception as error:
+            logger.warning(
+                {'msg': 'Error to calculate rewards.', 'value': error})
+            return 0, 0
 
     @staticmethod
     def _get_deposit_priority_fee(percentile):
@@ -447,3 +426,32 @@ class DepositorBot:
             ),
             variables.MAX_PRIORITY_FEE,
         )
+
+    def _get_deposit_ratio(self):
+        try:
+            total_buffered = StMATICInterface.totalBuffered()
+            reserved_funds = StMATICInterface.reservedFunds()
+            delegation_lower_bound = StMATICInterface.delegationLowerBound()
+            total_delegated = StMATICInterface.getTotalStakeAcrossAllValidators()
+            delegate_ratio = (total_buffered - reserved_funds) * \
+                100 / total_delegated
+
+            BUFFERED_MATIC.set(total_buffered)
+            REQUIRED_BUFFERED_MATIC.set(delegation_lower_bound)
+            TOTAL_DELEGATED.set(total_delegated)
+            DELEGATE_RATIO.set(delegate_ratio)
+
+            logger.info({'msg': 'Call `totalBuffered()`.', 'value': {
+                'version': variables.VERSION,
+                'total_buffered': total_buffered,
+                'reserved_funds': reserved_funds,
+                'delegation_lower_bound': delegation_lower_bound,
+                'total_delegated': total_delegated,
+                'delegate_ratio': delegate_ratio,
+                'last_delegation_time': self.LAST_DELEGATE_TIME,
+            }})
+            return delegate_ratio
+        except Exception as error:
+            logger.info(
+                {'msg': 'Error to calculate delegation.', 'value': error})
+            return 0
