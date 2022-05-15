@@ -104,7 +104,7 @@ class DepositorBot:
             self.run_distribute_rewards_cycle()
             logger.info({'msg': f'Distribute rewards method end.'})
 
-        time.sleep(5)
+        time.sleep(60)
 
         self.run_delegate_cycle()
         logger.info({'msg': f'Delegate method end.'})

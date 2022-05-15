@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 NETWORK = os.getenv('NETWORK')
-VERSION = '1.1.2'
+VERSION = '1.1.3'
 
 # Transaction limits
 MAX_GAS_FEE = Wei(os.getenv('MAX_GAS_FEE', '100 gwei'))
