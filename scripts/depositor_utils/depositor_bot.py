@@ -95,7 +95,8 @@ class DepositorBot:
     def run_cycle(self):
         logger.info(
             {'msg': f'Infos', 'value': {
-                'Last delegation at': self.LAST_DISTRIBUTE_TIME + variables.CYCLE,
+                'Last delegation at': self.LAST_DELEGATE_TIME,
+                'Last reward distribution at': self.LAST_DISTRIBUTE_TIME,
                 'Next reward distribution at': self.LAST_DISTRIBUTE_TIME + variables.CYCLE,
                 'Current Time': time.time()
             }})
