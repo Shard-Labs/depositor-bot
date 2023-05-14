@@ -24,7 +24,7 @@ echo "CREATE_TRANSACTIONS=$CREATE_TRANSACTIONS" >> .env
 echo "CYCLE=$CYCLE" >> .env
 echo "MIN_RATIO=$MIN_RATIO" >> .env
 echo "MAX_RATIO=$MAX_RATIO" >> .env
-echo "DISTRIBUTE_REWARDS=$DISTRIBUTE_REWARDS" >> .env
+echo "ETHERSCAN_API_KEY=$ETHERSCAN_API_KEY" >> .env
 
 docker-compose up -d --build
 
