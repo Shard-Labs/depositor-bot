@@ -2,11 +2,17 @@ import logging
 import time
 from tests.fixtures.pytest_fixtures import *
 from tests.utils.logs import find_log_message
-
+import pytest
+from scripts.depositor_utils.errors import (
+    NoEnoughRewards
+)
 
 ISSUES_FOUND_LOG = 'Issues found.'
-ISSUES_NOT_FOUND_DISTRIBUTE_REWARDS_LOG = 'No issues found. Try to distribute rewards.'
+START_DISTRIBUTE_REWARDS_LOG = 'Start distributing rewards.'
+ERROR_DISTRIBUTE_REWARDS_LOG = 'Can not distribute rewards.'
+START_DELEGATE_LOG = 'Start delegation.'
 ISSUES_NOT_FOUND_DELEGATE_LOG = 'No issues found. Try to delegate.'
+LOW_ACCOUNT_BALANCE = 'Account balance is too low.'
 
 
 def test_distribute_rewards_no_create_tx(
@@ -19,7 +25,7 @@ def test_distribute_rewards_no_create_tx(
     caplog.set_level(logging.INFO)
     depositor_bot.run_distribute_rewards_cycle()
     assert not find_log_message(caplog, ISSUES_FOUND_LOG)
-    assert find_log_message(caplog, ISSUES_NOT_FOUND_DISTRIBUTE_REWARDS_LOG)
+    assert find_log_message(caplog, START_DISTRIBUTE_REWARDS_LOG)
     assert find_log_message(caplog, 'Run in dry mode.')
     assert not find_log_message(caplog, 'Creating tx in blockchain.')
 
@@ -52,17 +58,6 @@ def test_delegate_max_priority(
     assert find_log_message(caplog, 'Run in dry mode.')
     assert not find_log_message(caplog, 'Creating tx in blockchain.')
 
-def test_disable_rewards_distibution(
-    caplog,
-    setup_web3_disable_rewards_distibution,
-    depositor_bot,
-    setup_account,
-    setup_no_create_txs
-):
-    caplog.set_level(logging.INFO)
-    depositor_bot.run_distribute_rewards_cycle()
-    assert find_log_message(caplog, 'Distribute rewards method disabled.')
-
 def test_delegate_range_no_create_tx(
     caplog,
     setup_web3_fixtures_delegate_in_range,
@@ -78,34 +73,19 @@ def test_delegate_range_no_create_tx(
     assert not find_log_message(caplog, 'Creating tx in blockchain.')
 
 
-def test_delegate_issues__account_balance(
+def test_account_balance(
     caplog,
     setup_web3_deposit_fixtures_small_balance,
     depositor_bot,
     setup_account
 ):
     caplog.set_level(logging.INFO)
-    depositor_bot.run_delegate_cycle()
+    depositor_bot.check_account_balance()
     assert find_log_message(
         caplog, depositor_bot.NOT_ENOUGH_BALANCE_ON_ACCOUNT)
-    record = find_log_message(caplog, ISSUES_FOUND_LOG)
+    record = find_log_message(caplog, LOW_ACCOUNT_BALANCE)
     assert record
-    assert record.msg['value'] == [depositor_bot.NOT_ENOUGH_BALANCE_ON_ACCOUNT]
-
-
-def test_distribut_rewards_issues__account_balance(
-    caplog,
-    setup_web3_deposit_fixtures_small_balance,
-    depositor_bot,
-    setup_account
-):
-    caplog.set_level(logging.INFO)
-    depositor_bot.run_delegate_cycle()
-    assert find_log_message(
-        caplog, depositor_bot.NOT_ENOUGH_BALANCE_ON_ACCOUNT)
-    record = find_log_message(caplog, ISSUES_FOUND_LOG)
-    assert record
-    assert record.msg['value'] == [depositor_bot.NOT_ENOUGH_BALANCE_ON_ACCOUNT]
+    assert record.msg['msg'] == depositor_bot.NOT_ENOUGH_BALANCE_ON_ACCOUNT
 
 
 def test_deposit_issues__gas_strategy(
@@ -166,46 +146,8 @@ def test_distribute_rewards_issues__not_enough_rewards(
     setup_account
 ):
     caplog.set_level(logging.INFO)
-    depositor_bot.run_distribute_rewards_cycle()
-
-    assert find_log_message(
-        caplog, depositor_bot.StMATIC_CONTRACT_HAS_NOT_ENOUGH_REWARDS)
-    record = find_log_message(caplog, ISSUES_FOUND_LOG)
-    assert record
-    assert record.msg['value'] == [
-        depositor_bot.StMATIC_CONTRACT_HAS_NOT_ENOUGH_REWARDS]
-
-
-def test_delegate__no_account(
-    caplog,
-    depositor_bot,
-    setup_web3_fixtures_delegate,
-    setup_no_account
-):
-    caplog.set_level(logging.INFO)
-    depositor_bot.run_delegate_cycle()
-
-    assert not find_log_message(caplog, ISSUES_FOUND_LOG)
-    assert find_log_message(caplog, ISSUES_NOT_FOUND_DELEGATE_LOG)
-    assert find_log_message(
-        caplog, 'Check account balance. No account provided.')
-    assert not find_log_message(caplog, 'Creating tx in blockchain.')
-
-
-def test_distribute_rewards__no_account(
-    caplog,
-    depositor_bot,
-    setup_web3_fixtures_distribute_rewards,
-    setup_no_account
-):
-    caplog.set_level(logging.INFO)
-    depositor_bot.run_distribute_rewards_cycle()
-
-    assert not find_log_message(caplog, ISSUES_FOUND_LOG)
-    assert find_log_message(caplog, ISSUES_NOT_FOUND_DISTRIBUTE_REWARDS_LOG)
-    assert find_log_message(
-        caplog, 'Check account balance. No account provided.')
-    assert not find_log_message(caplog, 'Creating tx in blockchain.')
+    with pytest.raises(NoEnoughRewards):
+        depositor_bot.run_distribute_rewards_cycle()
 
 
 def test_delegate__sucess(
@@ -234,7 +176,21 @@ def test_distribute_rewards__sucess(
     depositor_bot.run_distribute_rewards_cycle()
 
     assert not find_log_message(caplog, ISSUES_FOUND_LOG)
-    assert find_log_message(caplog, ISSUES_NOT_FOUND_DISTRIBUTE_REWARDS_LOG)
+    assert find_log_message(caplog, START_DISTRIBUTE_REWARDS_LOG)
+    assert find_log_message(caplog, 'Creating tx in blockchain.')
+
+def test_distribute_rewards__sucess(
+    caplog,
+    setup_web3_fixtures_distribute_rewards,
+    depositor_bot,
+    setup_account,
+    setup_create_txs
+):
+    caplog.set_level(logging.INFO)
+    depositor_bot.run_distribute_rewards_cycle()
+
+    assert not find_log_message(caplog, ISSUES_FOUND_LOG)
+    assert find_log_message(caplog, START_DISTRIBUTE_REWARDS_LOG)
     assert find_log_message(caplog, 'Creating tx in blockchain.')
 
 def test_depositor_bot_priority_fee(

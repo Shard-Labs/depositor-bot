@@ -1,7 +1,7 @@
 from prometheus_client.metrics import Gauge, Counter
 
 
-DEPOSITOR_PREFIX = 'depositor_bot_'
+DEPOSITOR_PREFIX = 'lido_on_polygon_bot'
 
 BUILD_INFO = Gauge(f'{DEPOSITOR_PREFIX}build_info', 'Build info', [
     'name',
@@ -21,19 +21,18 @@ BUILD_INFO = Gauge(f'{DEPOSITOR_PREFIX}build_info', 'Build info', [
 
 GAS_FEE = Gauge(f'{DEPOSITOR_PREFIX}gas_fee', 'Gas fee', ['type'])
 
-DELEGATE_FAILURE = Counter(f'{DEPOSITOR_PREFIX}delegate_failure', 'Delegate failure')
-SUCCESS_DELEGATE = Counter(f'{DEPOSITOR_PREFIX}delegate_success', 'Delegate done')
+DELEGATE_FAILURE = Counter(
+    f'{DEPOSITOR_PREFIX}delegate_failure', 'Delegate failure')
+SUCCESS_DELEGATE = Counter(
+    f'{DEPOSITOR_PREFIX}delegate_success', 'Delegate done')
 
-DISTIBUTE_REWARDS_FAILURE = Counter(f'{DEPOSITOR_PREFIX}distribute_rewards_failure', 'Distribute rewards failure')
-SUCCESS_DISTIBUTE_REWARDS = Counter(f'{DEPOSITOR_PREFIX}distribute_rewards_success', 'Distribute rewards done')
+DISTIBUTE_REWARDS_FAILURE = Counter(
+    f'{DEPOSITOR_PREFIX}distribute_rewards_failure', 'Distribute rewards failure')
+SUCCESS_DISTIBUTE_REWARDS = Counter(
+    f'{DEPOSITOR_PREFIX}distribute_rewards_success', 'Distribute rewards done')
 
-ACCOUNT_BALANCE = Gauge(f'{DEPOSITOR_PREFIX}account_balance', 'Account balance')
+ACCOUNT_BALANCE = Gauge(
+    f'{DEPOSITOR_PREFIX}account_balance', 'Account balance')
 
-BUFFERED_MATIC = Gauge(f'{DEPOSITOR_PREFIX}buffered_matic', 'Buffered MATIC')
-REQUIRED_BUFFERED_MATIC = Gauge(f'{DEPOSITOR_PREFIX}required_buffered_matic', 'Min buffered MATIC amount required for delegate')
-TOTAL_DELEGATED = Gauge(f'{DEPOSITOR_PREFIX}total_delegated', 'total delegated')
-DELEGATE_RATIO = Gauge(f'{DEPOSITOR_PREFIX}delegate_ratio', 'delegate ratio')
-CREATING_TRANSACTIONS = Gauge(f'{DEPOSITOR_PREFIX}creating_transactions', 'Creating transactions', ['bot'])
-
-REWARDS_MATIC = Gauge(f'{DEPOSITOR_PREFIX}rewards_matic', 'Rewards MATIC')
-REQUIRED_REWARDS_MATIC = Gauge(f'{DEPOSITOR_PREFIX}required_rewards_matic', 'Min rewards MATIC amount required for distribute')
+CREATING_TRANSACTIONS = Gauge(
+    f'{DEPOSITOR_PREFIX}creating_transactions', 'Creating transactions', ['bot'])
