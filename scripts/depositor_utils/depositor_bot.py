@@ -192,10 +192,10 @@ class DepositorBot:
 
         try:
             # Distribute Rewards
-            StMATICInterface.distributeRewards({
-                'priority_fee': priority,
-                'gas_limit': variables.CONTRACT_GAS_LIMIT
-            })
+            # StMATICInterface.distributeRewards({
+            #     'priority_fee': priority,
+            #     'gas_limit': variables.CONTRACT_GAS_LIMIT
+            # })
 
             logger.info({'msg': 'Transaction success.'})
             self.last_distribution_time = time.time()
@@ -319,7 +319,7 @@ class DepositorBot:
         try:
             rewards_accumulated_in_validators = 0
             for idx, node_operator in enumerate(self.node_operators):
-                validator_share_address = node_operator[idx][2]
+                validator_share_address = node_operator[2]
                 validator_share = get_interface(validator_share_address)
 
                 reward = validator_share.getLiquidRewards(
