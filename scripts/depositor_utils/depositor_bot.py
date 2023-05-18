@@ -192,10 +192,10 @@ class DepositorBot:
 
         try:
             # Distribute Rewards
-            # StMATICInterface.distributeRewards({
-            #     'priority_fee': priority,
-            #     'gas_limit': variables.CONTRACT_GAS_LIMIT
-            # })
+            StMATICInterface.distributeRewards({
+                'priority_fee': priority,
+                'gas_limit': variables.CONTRACT_GAS_LIMIT
+            })
 
             logger.info({'msg': 'Transaction success.'})
             self.last_distribution_time = time.time()
