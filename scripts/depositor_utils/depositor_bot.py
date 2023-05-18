@@ -388,11 +388,13 @@ class DepositorBot:
 
         if (not self.last_distribution_time):
             try:
-                url = f'https://api.etherscan.io/api?module=account&action=txlist&address={variables.ACCOUNT}&startblock={(block_number - 6000)}&endblock={block_number}&page=1&offset=10&sort=asc&apikey={variables.ETHERSCAN_API_KEY}'
+                url = f'https://api.etherscan.io/api?module=account&action=txlist&address={variables.ACCOUNT}&startblock={(block_number - 6600)}&endblock={block_number}&page=1&offset=10&sort=asc&apikey={variables.ETHERSCAN_API_KEY}'
                 txs = (requests.get(url)).json()
 
                 for tx in txs["result"]:
                     if tx["functionName"] == "distributeRewards()":
+                        logger.info(
+                            {"msg": "Distribute transaction found", "value": {"tx": tx}})
                         self.last_distribution_time = int(tx["timeStamp"])
                         break
 
