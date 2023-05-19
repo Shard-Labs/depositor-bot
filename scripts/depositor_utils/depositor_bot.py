@@ -78,11 +78,14 @@ class DepositorBot:
     # ------------ CYCLE STAFF -------------------
     def run_as_daemon(self):
         """Super-Mega infinity cycle!"""
-        self.recover_last_distribution_timestamp()
-        self.get_node_operators()
 
         while True:
             try:
+                if (not self.last_distribution_time):
+                    self.recover_last_distribution_timestamp()
+                if (len(self.node_operators) == 0):
+                    self.get_node_operators()
+
                 for _ in chain.new_blocks():
                     self.run_cycle()
                     logger.info({'msg': 'Cycle sleep.', 'time': self.success_wait})
@@ -90,7 +93,7 @@ class DepositorBot:
             except Exception as error:
                 logger.error(
                     {'msg': 'Unexpected exception.', 'error': str(error)})
-            time.sleep(10)
+                time.sleep(self.fail_wait)
 
     def check_account_balance(self):
         if variables.ACCOUNT:
@@ -388,7 +391,7 @@ class DepositorBot:
 
         if (not self.last_distribution_time):
             try:
-                url = f'https://api.etherscan.io/api?module=account&action=txlist&address={variables.ACCOUNT}&startblock={(block_number - 6600)}&endblock={block_number}&page=1&offset=10&sort=asc&apikey={variables.ETHERSCAN_API_KEY}'
+                url = f'https://api.etherscan.io/api?module=account&action=txlist&address={variables.ACCOUNT}&startblock={(block_number - 10000)}&endblock={block_number}&page=1&offset=10&sort=asc&apikey={variables.ETHERSCAN_API_KEY}'
                 txs = (requests.get(url)).json()
 
                 for tx in txs["result"]:
