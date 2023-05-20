@@ -43,6 +43,7 @@ class DepositorBot:
     fail_wait = 300
     distribute_rewards_wait = 180
     last_cycle = time.time()
+    retry = 0
 
     def __init__(self):
         logger.info({'msg': 'Initialize DepositorBot.'})
@@ -432,3 +433,6 @@ class DepositorBot:
 
     def is_health(self):
         return time.time() < self.last_cycle + self.success_wait * 2
+
+    def inc_retry(self):
+        self.retry += 1
