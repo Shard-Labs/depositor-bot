@@ -1,5 +1,6 @@
 import logging
 import time
+from datetime import datetime
 from brownie import web3, Wei, chain
 import requests
 from scripts.utils.interfaces import (
@@ -89,7 +90,8 @@ class DepositorBot:
 
                 for _ in chain.new_blocks():
                     self.run_cycle()
-                    logger.info({'msg': 'Cycle sleep.', 'time': self.success_wait})
+                    logger.info(
+                        {'msg': 'Cycle sleep.', 'time': self.success_wait})
                     time.sleep(self.success_wait)
             except Exception as error:
                 logger.error(
@@ -202,7 +204,9 @@ class DepositorBot:
             })
 
             logger.info({'msg': 'Transaction success.'})
-            self.last_distribution_time = time.time()
+            td = datetime.today()
+            ts = datetime(td.year, td.month, td.day, 13, 0, 0, 0)
+            self.last_distribution_time = ts.timestamp()
         except Exception as error:
             logger.error(
                 {'msg': f'Distribute Rewards failed.', 'error': str(error)})
@@ -392,7 +396,7 @@ class DepositorBot:
 
         if (not self.last_distribution_time):
             try:
-                url = f'https://api.etherscan.io/api?module=account&action=txlist&address={variables.ACCOUNT}&startblock={(block_number - 10000)}&endblock={block_number}&page=1&offset=10&sort=asc&apikey={variables.ETHERSCAN_API_KEY}'
+                url = f'https://api.etherscan.io/api?module=account&action=txlist&address={variables.ACCOUNT}&startblock={(block_number - 10000)}&endblock={block_number}&page=1&offset=10&sort=desc&apikey={variables.ETHERSCAN_API_KEY}'
                 txs = (requests.get(url)).json()
 
                 for tx in txs["result"]:
