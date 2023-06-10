@@ -4,7 +4,7 @@ from tests.fixtures.pytest_fixtures import *
 from tests.utils.logs import find_log_message
 import pytest
 from scripts.depositor_utils.errors import (
-    NoEnoughRewards
+    ExceptionNoEnoughRewards
 )
 
 ISSUES_FOUND_LOG = 'Issues found.'
@@ -146,7 +146,7 @@ def test_distribute_rewards_issues__not_enough_rewards(
     setup_account
 ):
     caplog.set_level(logging.INFO)
-    with pytest.raises(NoEnoughRewards):
+    with pytest.raises(ExceptionNoEnoughRewards):
         depositor_bot.run_distribute_rewards_cycle()
 
 

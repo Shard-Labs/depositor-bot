@@ -1,5 +1,6 @@
 import logging
 import time
+from datetime import datetime
 from brownie import web3, Wei, chain
 import requests
 from scripts.utils.interfaces import (
@@ -202,7 +203,9 @@ class DepositorBot:
             })
 
             logger.info({'msg': 'Transaction success.'})
-            self.last_distribution_time = time.time()
+            td = datetime.today()
+            ts = datetime(td.year, td.month, td.day, 13, 0, 0, 0)
+            self.last_distribution_time = ts.timestamp()
         except Exception as error:
             logger.error(
                 {'msg': f'Distribute Rewards failed.', 'error': str(error)})
