@@ -6,7 +6,7 @@ cd $PROJECT_PATH
 
 git fetch
 git checkout $CIRCLE_BRANCH
-git pull
+git reset --hard origin/main
 
 cp env.bak/.env .env
 echo "NETWORK=$NETWORK" >> .env
