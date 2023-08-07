@@ -1,4 +1,4 @@
-# <img src="https://docs.lido.fi/img/logo.svg" alt="Lido" width="46"/> Lido For Polygon Depositor bot
+# <img src="https://docs.lido.fi/img/logo.svg" alt="Lido" width="46"/> Lido On Polygon Depositor bot
 
 ## Delegator and Reward Distributor bot
 The bot is used to delegate and distribute rewards
