@@ -334,6 +334,8 @@ class DepositorBot:
                     StMATICInterface.address)
                 if reward >= validator_share.minAmount():
                     rewards_accumulated_in_validators += reward
+                logger.info(f'Check node operator rewards {idx + 1}/{len(self.node_operators)}')
+                time.sleep(2)
 
             reward_distribution_lower_bound = StMATICInterface.rewardDistributionLowerBound()
             total_buffered = StMATICInterface.totalBuffered()
@@ -422,9 +424,11 @@ class DepositorBot:
             logger.info({'msg': "validator ids", "value": {
                         "validator_ids": validator_ids}})
 
-            for validator_id in validator_ids:
+            for idx, validator_id in enumerate(validator_ids):
                 self.node_operators.append(
                     NodeOperatorRegistryInterface.getNodeOperator["uint256"](validator_id))
+                print(f'Fetched node operator data {idx}/{len(validator_ids)}')
+                time.sleep(1)
             logger.info({'msg': "Node Operators fetched successfully"})
 
         except Exception as err:
