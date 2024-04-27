@@ -40,7 +40,7 @@ class DepositorBot:
     last_delegate_time = 0
     last_distribution_time = None
     node_operators = []
-    success_wait = 600
+    success_wait = 900
     fail_wait = 300
     distribute_rewards_wait = 180
     last_cycle = time.time()
@@ -81,12 +81,12 @@ class DepositorBot:
     def run_as_daemon(self):
         """Super-Mega infinity cycle!"""
 
+        if (len(self.node_operators) == 0):
+            self.get_node_operators()
+
         while True:
             try:
-                if (not self.last_distribution_time):
-                    self.recover_last_distribution_timestamp()
-                if (len(self.node_operators) == 0):
-                    self.get_node_operators()
+                self.last_distribution_time = self.recover_last_distribution_timestamp()
 
                 for _ in chain.new_blocks():
                     self.run_cycle()
