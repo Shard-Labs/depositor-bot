@@ -40,7 +40,7 @@ class DepositorBot:
     last_delegate_time = 0
     last_distribution_time = None
     node_operators = []
-    success_wait = 600
+    success_wait = 900
     fail_wait = 300
     distribute_rewards_wait = 180
     last_cycle = time.time()
@@ -81,12 +81,12 @@ class DepositorBot:
     def run_as_daemon(self):
         """Super-Mega infinity cycle!"""
 
+        if (len(self.node_operators) == 0):
+            self.get_node_operators()
+
         while True:
             try:
-                if (not self.last_distribution_time):
-                    self.recover_last_distribution_timestamp()
-                if (len(self.node_operators) == 0):
-                    self.get_node_operators()
+                self.last_distribution_time = self.recover_last_distribution_timestamp()
 
                 for _ in chain.new_blocks():
                     self.run_cycle()
@@ -334,6 +334,8 @@ class DepositorBot:
                     StMATICInterface.address)
                 if reward >= validator_share.minAmount():
                     rewards_accumulated_in_validators += reward
+                logger.info(f'Check node operator rewards {idx + 1}/{len(self.node_operators)}')
+                time.sleep(2)
 
             reward_distribution_lower_bound = StMATICInterface.rewardDistributionLowerBound()
             total_buffered = StMATICInterface.totalBuffered()
@@ -422,9 +424,11 @@ class DepositorBot:
             logger.info({'msg': "validator ids", "value": {
                         "validator_ids": validator_ids}})
 
-            for validator_id in validator_ids:
+            for idx, validator_id in enumerate(validator_ids):
                 self.node_operators.append(
                     NodeOperatorRegistryInterface.getNodeOperator["uint256"](validator_id))
+                print(f'Fetched node operator data {idx}/{len(validator_ids)}')
+                time.sleep(1)
             logger.info({'msg': "Node Operators fetched successfully"})
 
         except Exception as err:
