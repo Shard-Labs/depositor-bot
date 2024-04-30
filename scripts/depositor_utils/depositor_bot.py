@@ -86,7 +86,7 @@ class DepositorBot:
 
         while True:
             try:
-                self.last_distribution_time = self.recover_last_distribution_timestamp()
+                self.recover_last_distribution_timestamp()
 
                 for _ in chain.new_blocks():
                     self.run_cycle()
